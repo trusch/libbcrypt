@@ -30,10 +30,10 @@ set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -O3" )
 set( CMAKE_ASM_FLAGS "${CXXFLAGS} -x assembler-with-cpp")
 
 set( SRCFILES ${CMAKE_CURRENT_SOURCE_DIR}/src/bcrypt.c
-              ${CMAKE_CURRENT_SOURCE_DIR}/src/crypt_blowfish.c
-              ${CMAKE_CURRENT_SOURCE_DIR}/src/crypt_gensalt.c
-              ${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper.c
-	      ${CMAKE_CURRENT_SOURCE_DIR}/src/x86.S
+		${CMAKE_CURRENT_SOURCE_DIR}/src/crypt_blowfish.c
+		${CMAKE_CURRENT_SOURCE_DIR}/src/crypt_gensalt.c
+		${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper.c
+		${CMAKE_CURRENT_SOURCE_DIR}/src/x86.S
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt)
@@ -56,4 +56,5 @@ SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Tino Rusch")
 SET(CPACK_PACKAGE_VERSION "0.1.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "1")
-SET(CPACK_PACKAGE_VERSION_PATCH)
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+INCLUDE(CPack)
