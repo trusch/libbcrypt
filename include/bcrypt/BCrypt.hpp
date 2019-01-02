@@ -1,6 +1,10 @@
 #ifndef __BCRYPT__
 #define __BCRYPT__
 
+#ifdef _WIN32
+#include "winbcrypt.h"
+#else
+
 #include "bcrypt.h"
 #include <string>
 #include <stdexcept>
@@ -22,5 +26,7 @@ public:
         return (bcrypt_checkpw(password.c_str(), hash.c_str()) == 0);
     }
 };
+
+#endif
 
 #endif // __BCRYPT__

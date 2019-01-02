@@ -40,10 +40,18 @@
 #if defined(__GLIBC__) && defined(_LIBC)
 #define __SKIP_GNU
 #endif
+
+#ifdef _WIN32 | _WIN64
+#include "../include/bcrypt/ow-crypt.h"
+
+#include "../include/bcrypt/crypt_blowfish.h"
+#include "../include/bcrypt/crypt_gensalt.h"
+#else
 #include "ow-crypt.h"
 
 #include "crypt_blowfish.h"
 #include "crypt_gensalt.h"
+#endif
 
 #if defined(__GLIBC__) && defined(_LIBC)
 /* crypt.h from glibc-crypt-2.1 will define struct crypt_data for us */
@@ -243,7 +251,11 @@ char *__crypt_gensalt_ra(const char *prefix, unsigned long count,
 		input, size, output, sizeof(output));
 
 	if (retval) {
+#ifdef _WIN32 | _WIN64
+		retval = _strdup(retval);
+#else
 		retval = strdup(retval);
+#endif
 #ifndef __GLIBC__
 		/* strdup(3) on glibc sets errno, so we don't need to bother */
 		if (!retval)

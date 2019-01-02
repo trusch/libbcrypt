@@ -26,7 +26,11 @@
 #endif
 
 /* Just to make sure the prototypes match the actual definitions */
+#ifdef _WIN32
+#include "../include/bcrypt/crypt_gensalt.h"
+#else
 #include "crypt_gensalt.h"
+#endif
 
 unsigned char _crypt_itoa64[64 + 1] =
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
