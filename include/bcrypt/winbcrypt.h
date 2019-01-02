@@ -6,15 +6,6 @@
 #include "crypt_blowfish.h"
 #include "./bcrypt.h"
 
-// For NULL byte add 1.
-#define BCRYPT_HASHSIZE 61
-
-// Looked at here for example on how this can be done on windows.
-// https://github.com/kelektiv/node.bcrypt.js/blob/master/src/bcrypt.cc
-#ifdef _WIN32
-#define snprintf _snprintf
-#endif
-
 class BCrypt {
 public:
 	static std::string generateHash(const std::string & password, int workload = 12) {
