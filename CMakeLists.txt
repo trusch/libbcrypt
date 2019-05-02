@@ -22,6 +22,16 @@ set(MYLIB_VERSION_MINOR 0)
 set(MYLIB_VERSION_PATCH 0)
 set(MYLIB_VERSION_STRING ${MYLIB_VERSION_MAJOR}.${MYLIB_VERSION_MINOR}.${MYLIB_VERSION_PATCH})
 
+# to build static, cmake . -DBUILD_SHARED_LIBS=Off
+option(BUILD_SHARED_LIBS "Build a shared library" ON)
+
+if (NOT BUILD_SHARED_LIBS)
+	message ("Building a static library")
+else ()
+	message ("Building a shared library")
+endif ()
+
+
 set( CMAKE_COLOR_MAKEFILE ON )
 
 set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall --std=c++11 -O3" )
@@ -42,7 +52,6 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(
 	${PROJECT_NAME}
-	SHARED
 	${SRCFILES}
 )
 
@@ -61,6 +70,7 @@ include(GNUInstallDirs)
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bcrypt)
 
