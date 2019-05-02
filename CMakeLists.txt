@@ -22,8 +22,9 @@ set(MYLIB_VERSION_MINOR 0)
 set(MYLIB_VERSION_PATCH 0)
 set(MYLIB_VERSION_STRING ${MYLIB_VERSION_MAJOR}.${MYLIB_VERSION_MINOR}.${MYLIB_VERSION_PATCH})
 
-# to build static, cmake . -DBUILD_SHARED_LIBS=Off
-option(BUILD_SHARED_LIBS "Build a shared library" ON)
+# just doing cmake . will build a shared or static lib and honor existing environment setting
+# to force build static, cmake . -DBUILD_SHARED_LIBS=Off
+# to force build shared, cmake . -DBUILD_SHARED_LIBS=On
 
 if (NOT BUILD_SHARED_LIBS)
 	message ("Building a static library")
