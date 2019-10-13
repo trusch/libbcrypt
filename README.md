@@ -17,18 +17,19 @@ sudo ldconfig
 
 ## How to use this
 
-Here an example how to use this wrapper class (you can find it in the src/ subdirectory)
+Here an example how to use this wrapper class (you can find a slightly edited example in src/ subdirectory)
 
 ```cpp
 #include "bcrypt/BCrypt.hpp"
 #include <iostream>
 
 int main(){
-	BCrypt bcrypt;
 	std::string password = "test";
 	std::string hash = bcrypt.generateHash(password);
-	std::cout<<bcrypt.validatePassword(password,hash)<<std::endl;
-	std::cout<<bcrypt.validatePassword("test1",hash)<<std::endl;
+
+	std::cout << BCrypt::validatePassword(password,hash) << std::endl;
+	std::cout << BCrypt::validatePassword("test1",hash) << std::endl;
+
 	return 0;
 }
 ```
