@@ -25,7 +25,7 @@ Here an example how to use this wrapper class (you can find a slightly edited ex
 
 int main(){
 	std::string password = "test";
-	std::string hash = bcrypt.generateHash(password);
+	std::string hash = BCrypt::generateHash(password);
 
 	std::cout << BCrypt::validatePassword(password,hash) << std::endl;
 	std::cout << BCrypt::validatePassword("test1",hash) << std::endl;
