@@ -22,6 +22,13 @@
 #define __const const
 #endif
 
+#if __FreeBSD__
+	#include <sys/param.h>
+	#if __FreeBSD_version >= 1200000
+		#define __SKIP_GNU
+	#endif
+#endif
+
 #ifndef __SKIP_GNU
 extern char *crypt(__const char *key, __const char *setting);
 extern char *crypt_r(__const char *key, __const char *setting, void *data);
