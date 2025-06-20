@@ -11,16 +11,15 @@
 #
 ###################################################################################
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5)
 
-project(bcrypt)
+project(bcrypt VERSION 1.0.0 LANGUAGES C CXX )
 
-enable_language(ASM)
-
-set(MYLIB_VERSION_MAJOR 1)
-set(MYLIB_VERSION_MINOR 0)
-set(MYLIB_VERSION_PATCH 0)
-set(MYLIB_VERSION_STRING ${MYLIB_VERSION_MAJOR}.${MYLIB_VERSION_MINOR}.${MYLIB_VERSION_PATCH})
+if(MSVC )
+	enable_language(ASM_MASM)
+else()
+	enable_language(ASM)
+endif()
 
 # just doing cmake . will build a shared or static lib and honor existing environment setting
 # to force build static, cmake . -DBUILD_SHARED_LIBS=Off
@@ -35,10 +34,15 @@ endif ()
 
 set( CMAKE_COLOR_MAKEFILE ON )
 
-set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall --std=c++11 -O3" )
-set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -O3" )
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set( CMAKE_ASM_FLAGS "${CXXFLAGS} -x assembler-with-cpp")
+if (NOT MSVC)
+	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -O3" )
+	set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -O3" )
+	set( CMAKE_ASM_FLAGS "${CXXFLAGS} -x assembler-with-cpp")
+endif()
+
 
 set( SRCFILES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/bcrypt.c
@@ -46,6 +50,13 @@ set( SRCFILES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/crypt_gensalt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/x86.S
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/bcrypt.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/BCrypt.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/crypt.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/crypt_blowfish.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/crypt_gensalt.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/ow-crypt.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/bcrypt/ow-crypt.h
 )
 
 if (NOT WIN32)
@@ -57,18 +68,24 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_library(
 	${PROJECT_NAME}
 	${SRCFILES}
+	src/wrapper.h
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${MYLIB_VERSION_STRING} SOVERSION ${MYLIB_VERSION_MAJOR})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/bcrypt/BCrypt.hpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-add_executable( ${PROJECT_NAME}_test ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+# optional test
+option(TEST "Build test executable" OFF)
+if(TEST)
+	add_executable( ${PROJECT_NAME}_test ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+	target_link_libraries( ${PROJECT_NAME}_test ${PROJECT_NAME})
+endif()
 
-target_link_libraries( ${PROJECT_NAME}_test ${PROJECT_NAME})
+
 
 include(GNUInstallDirs)
 
@@ -85,9 +102,6 @@ SET(CPACK_GENERATOR "DEB")
 SET(CPACK_SET_DESTDIR ON)
 
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Manuel Romei")
-SET(CPACK_PACKAGE_VERSION "1.0.0")
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+
 
 INCLUDE(CPack)

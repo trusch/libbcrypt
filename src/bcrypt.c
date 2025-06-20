@@ -15,12 +15,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#ifdef _WIN32
-#elif _WIN64
-#else
+#include <errno.h>
+
+#if !defined(_WIN32) && !defined(_WIN64)
 #include <unistd.h>
 #endif
-#include <errno.h>
+
 
 #if defined(_WIN32) || defined(_WIN64)
 // On windows we need to generate random bytes differently.
@@ -29,9 +29,9 @@ typedef __int32 ssize_t;
 #elif defined(_WIN32) && defined(_WIN64)
 typedef __int64 ssize_t;
 #endif
-#define BCRYPT_HASHSIZE 60
 
 #include "../include/bcrypt/bcrypt.h"
+#include "wrapper.h"
 
 #include <windows.h>
 #include <wincrypt.h> /* CryptAcquireContext, CryptGenRandom */
@@ -42,6 +42,7 @@ typedef __int64 ssize_t;
 
 #define RANDBYTES (16)
 
+#if !defined(_WIN32) && !defined(_WIN64)
 static int try_close(int fd)
 {
 	int ret;
@@ -65,7 +66,7 @@ static int try_read(int fd, char *out, size_t count)
 	{
 		for (;;) {
 			errno = 0;
-			partial = read(fd, out + total, count - total);
+			partial = read(fd, out + total, (unsigned int)(count - total));
 			if (partial == -1 && errno == EINTR)
 				continue;
 			break;
@@ -79,6 +80,7 @@ static int try_read(int fd, char *out, size_t count)
 
 	return 0;
 }
+#endif
 
 /*
  * This is a best effort implementation. Nothing prevents a compiler from
@@ -92,10 +94,9 @@ static int timing_safe_strcmp(const char *str1, const char *str2)
 	const unsigned char *u1;
 	const unsigned char *u2;
 	int ret;
-	int i;
 
-	int len1 = strlen(str1);
-	int len2 = strlen(str2);
+	size_t len1 = strlen(str1);
+	size_t len2 = strlen(str2);
 
 	/* In our context both strings should always have the same length
 	 * because they will be hashed passwords. */
@@ -107,7 +108,7 @@ static int timing_safe_strcmp(const char *str1, const char *str2)
 	u2 = (const unsigned char *)str2;
 
 	ret = 0;
-	for (i = 0; i < len1; ++i)
+	for (size_t i = 0; i < len1; ++i)
 		ret |= (u1[i] ^ u2[i]);
 
 	return ret;
@@ -115,7 +116,6 @@ static int timing_safe_strcmp(const char *str1, const char *str2)
 
 int bcrypt_gensalt(int factor, char salt[BCRYPT_HASHSIZE])
 {
-	int fd;
 	char input[RANDBYTES];
 	int workf;
 	char *aux;
@@ -123,7 +123,6 @@ int bcrypt_gensalt(int factor, char salt[BCRYPT_HASHSIZE])
 	// Note: Windows does not have /dev/urandom sadly.
 #if defined(_WIN32) || defined(_WIN64)
 	HCRYPTPROV p;
-	ULONG     i;
 
 	// Acquire a crypt context for generating random bytes.
 	if (CryptAcquireContext(&p, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT) == FALSE) {
@@ -139,7 +138,7 @@ int bcrypt_gensalt(int factor, char salt[BCRYPT_HASHSIZE])
 	}
 #else
 	// Get random bytes on Unix/Linux.
-	fd = open("/dev/urandom", O_RDONLY);
+	int fd = open("/dev/urandom", O_RDONLY);
 	if (fd == -1)
 		return 1;
 
